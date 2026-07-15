@@ -1,6 +1,6 @@
 # 📊 CampaignPulse: Marketing Channel Analytics Pipeline
 
-*End to End Data Pipeline for Channel Performance and Ad Spend Efficiency*
+*End to End Pipeline Revealing Which Marketing Channels Drive Revenue*
 
 ![Airflow](https://img.shields.io/badge/Apache%20Airflow-2.9.3-017CEE?style=flat&logo=apache-airflow&logoColor=white) ![dbt](https://img.shields.io/badge/dbt-1.8.0-FF694B?style=flat&logo=dbt&logoColor=white) ![BigQuery](https://img.shields.io/badge/Google%20BigQuery-Data%20Warehouse-4285F4?style=flat&logo=googlebigquery&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?style=flat&logo=githubactions&logoColor=white) ![Looker Studio](https://img.shields.io/badge/Looker%20Studio-Dashboard-4285F4?style=flat&logo=looker&logoColor=white)
 
@@ -33,7 +33,8 @@ Marketing teams routinely split budget across paid channels (search ads, display
 
 1. Which channels are actually driving revenue, and which are just driving traffic?
 2. Is our paid ad spend profitable, channel by channel, month by month?
-3. Where in the conversion funnel are we losing the most customers, and does that differ by channel?
+
+The current dashboard fully answers question 1 and partially answers question 2, it shows the overall paid return on ad spend and a monthly spend versus revenue trend, though it does not yet break that trend out separately for each individual paid channel over time.
 
 This project demonstrates that exact workflow end to end: real session data flows in daily, gets modeled into channel level facts, and surfaces directly in a dashboard a marketing lead could use to make a real budget reallocation decision, in this case, catching that paid channels return only 13 cents per dollar spent while a free channel outperforms them entirely.
 
@@ -48,7 +49,7 @@ This project demonstrates that exact workflow end to end: real session data flow
 - 🔄 Orchestrated ELT pipeline with Apache Airflow, TaskGroups, retries, and failure alerting
 - 🏗️ Full Bronze-Silver-Gold medallion architecture on BigQuery
 - 📅 A full year of real session data, 900,200 sessions across 12 months
-- 🔐 Keyless CI/CD authentication using Workload Identity Federation, no service account keys anywhere
+- 🔐 Keyless Continuous Integration and Deployment authentication using Workload Identity Federation, no service account keys anywhere
 - 📊 Interactive Looker Studio dashboard with date range and channel filters
 - 🧬 Slowly Changing Dimension Type 2 tracking via dbt snapshot
 
@@ -93,7 +94,7 @@ Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 | Orchestration | Apache Airflow 2.9.3 (Docker Compose) |
 | Transformation | dbt Core 1.8.0 + dbt-bigquery |
 | Data Warehouse | Google BigQuery |
-| CI/CD | GitHub Actions + Workload Identity Federation |
+| Continuous Integration and Deployment | GitHub Actions + Workload Identity Federation |
 | Visualization | Looker Studio |
 | Containerization | Docker |
 
@@ -113,7 +114,7 @@ Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 ## ⚙️ Pipeline Details
 
 ### Bronze Layer
-- Airflow's `BigQueryInsertJobOperator` extracts the full year of session data directly from the public dataset
+- The BigQueryInsertJobOperator in Airflow extracts the full year of session data directly from the public dataset
 - Written to a project owned Bronze dataset, partitioned by date, fully truncated and reloaded each run
 - 900,200 raw session rows landed, including nested ecommerce hit detail
 
