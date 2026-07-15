@@ -68,7 +68,7 @@ This project demonstrates that exact workflow end to end: real session data flow
 Google Merchandise Store sample dataset (BigQuery public data)
        │
        ▼
- Airflow DAG (Docker, local)
+ Airflow DAG 
        │
        ▼
 Bronze Layer  ──►  ga_sessions_raw, synthetic_ad_spend (partitioned by date)
@@ -80,7 +80,7 @@ dbt Silver Layer  ──►  stg_ga_sessions, stg_ad_spend, int_sessions_channel
 dbt Gold Layer  ──►  fct_channel_performance, fct_conversion_funnel
        │
        ▼
-Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
+Looker Studio Dashboard 
 ```
 
 ---
