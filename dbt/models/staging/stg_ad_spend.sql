@@ -9,4 +9,4 @@ select
         else 'Other'
     end as channel_group,
     daily_spend_usd
-from {{ source('bronze', 'synthetic_ad_spend') }}
+from {{ source('bronze', 'synthetic_ad_spend') }}-- CI test comment
