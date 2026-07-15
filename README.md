@@ -16,7 +16,6 @@
 - [Dataset](#-dataset)
 - [Pipeline Details](#-pipeline-details)
 - [Key Findings](#-key-findings)
-- [Dashboard Features](#-dashboard-features)
 - [Key Results](#-key-results)
 - [Project Structure](#-project-structure)
 - [Continuous Integration](#-continuous-integration)
@@ -129,35 +128,15 @@ Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 
 ---
 
-## 🔎 Key Findings
-
+## 🔎 Key Insights
+ 
 Across the full year of data:
-
-| Finding | Value |
-|---|---|
-| Total paid spend (Paid Search + Display) | $924,674.46 |
-| Overall paid ROAS | 13% |
-| Referral revenue, at zero spend (approximate) | ~$644,800 |
-| Peak monthly sessions (holiday season) | 113,907 (November) |
-
+ 
+- Display is the top revenue per session channel at $12.59 per session, while Organic Search carries the most traffic at 42.2% of all sessions, showing that the highest volume channel is not the highest converting channel
+- Total paid spend across Paid Search and Display combined is $924,674.46
+- Overall paid return on ad spend is 13%
+- Peak monthly sessions occur during the holiday season, reaching 113,907 sessions in November
 Paid channels returned just 13 cents for every dollar spent, while Referral traffic, which costs nothing, generated revenue on a similar scale to both paid channels combined.
-
----
-
-## 📊 Dashboard Features
-
-**Filters**
-- Date range control spanning the full year
-- Channel filter with multi select
-
-**KPI Cards**
-- Total revenue, total sessions, total paid spend, overall paid ROAS
-
-**Charts**
-- Monthly sessions trend, with a clear holiday season spike
-- Revenue per session by channel, horizontal bar
-- Paid spend versus revenue, trended monthly
-- Session share by channel, donut chart
 
 ---
 
@@ -189,8 +168,7 @@ campaignpulse/
 │   └── seeds/
 ├── scripts/
 │   └── synthetic_spend_generator.py
-├── assets/
-│   └── dashboard.png
+├──  dashboard.png
 ├── .github/workflows/dbt_ci.yml
 ├── docker-compose.yaml
 └── Dockerfile.airflow
