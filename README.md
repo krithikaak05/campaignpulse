@@ -95,7 +95,7 @@ Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, an
 
 The Looker Studio dashboard includes a date range filter, a channel filter, four KPI scorecards (total revenue, total sessions, total paid spend, overall paid ROAS), and four charts: monthly session trend, revenue per session by channel, paid spend versus revenue trended monthly, and session share by channel.
 
-View it live: https://datastudio.google.com/s/vwW-lkNpJic
+View it live: https://datastudio.google.com/reporting/15091e98-12eb-4b85-b382-84a640f25e73
 
 ## Tech stack
 
