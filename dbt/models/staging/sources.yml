@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: bronze
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: campaignpulse_bronze
+    tables:
+      - name: ga_sessions_raw
+        description: Raw Universal Analytics session data landed from the public Google Merchandise Store sample dataset, covering 2016-08-01 through 2017-08-01.
+        loaded_at_field: event_date
+        freshness:
+          warn_after: {count: 30, period: hour}
+          error_after: {count: 48, period: hour}
+      - name: synthetic_ad_spend
+        description: Synthetic daily channel level spend used for CAC and ROAS.

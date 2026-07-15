@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_ga_sessions
+    description: One row per session from the Universal Analytics export, with funnel hit counts unnested from the raw hits array.
+    columns:
+      - name: session_key
+        description: Surrogate key hashed from visitor id and visit id.
+        tests:
+          - unique
+          - not_null
+      - name: session_date
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        tests:
+          - not_null
+
+  - name: stg_ad_spend
+    description: Synthetic daily channel level ad spend.
+    columns:
+      - name: spend_date
+        tests:
+          - not_null
+      - name: channel
+        tests:
+          - not_null

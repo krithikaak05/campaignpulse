@@ -1,0 +1,30 @@
+name: campaignpulse
+version: "1.0.0"
+config-version: 2
+
+profile: campaignpulse
+
+model-paths: ["models"]
+snapshot-paths: ["snapshots"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  campaignpulse:
+    staging:
+      +materialized: view
+      +schema: campaignpulse_silver
+    intermediate:
+      +materialized: view
+      +schema: campaignpulse_silver
+    marts:
+      +materialized: table
+      +schema: campaignpulse_gold
+
+vars:
+  lookback_days: 365

@@ -1,0 +1,47 @@
+name: dbt CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "dbt/**"
+
+jobs:
+  dbt_build_and_test:
+    runs-on: ubuntu-latest
+
+    env:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp_sa.json
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt
+        run: |
+          pip install dbt-core==1.8.0 dbt-bigquery==1.8.0
+
+      - name: Write service account key
+        run: echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > /tmp/gcp_sa.json
+
+      - name: dbt deps
+        working-directory: dbt
+        run: dbt deps --profiles-dir . --target ci
+
+      - name: dbt seed
+        working-directory: dbt
+        run: dbt seed --profiles-dir . --target ci
+
+      - name: dbt run
+        working-directory: dbt
+        run: dbt run --profiles-dir . --target ci
+
+      - name: dbt test
+        working-directory: dbt
+        run: dbt test --profiles-dir . --target ci

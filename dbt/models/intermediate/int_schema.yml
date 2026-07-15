@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: int_sessions_channel
+    description: Session rollup with channel normalized using GA's native channelGrouping taxonomy.
+    columns:
+      - name: session_key
+        tests:
+          - unique
+          - not_null
+      - name: channel_group
+        tests:
+          - not_null

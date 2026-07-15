@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: fct_channel_performance
+    description: Daily channel level sessions, revenue, spend, CAC, and ROAS.
+    columns:
+      - name: channel_date_key
+        tests:
+          - unique
+          - not_null
+      - name: activity_date
+        tests:
+          - not_null
+      - name: channel_group
+        tests:
+          - not_null
+
+  - name: fct_conversion_funnel
+    description: Daily channel level funnel counts and stage conversion rates.
+    columns:
+      - name: channel_date_key
+        tests:
+          - unique
+          - not_null
