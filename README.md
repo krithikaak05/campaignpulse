@@ -1,102 +1,200 @@
-# CampaignPulse
+# 📊 CampaignPulse: Marketing Channel Analytics Pipeline
 
-An end to end marketing analytics pipeline built on Airflow, dbt, and Google BigQuery. It ingests a full year of real session data from the Google Merchandise Store public sample dataset, models it through a Bronze, Silver, Gold architecture, and produces channel performance, funnel, and cost per acquisition metrics visualized in an interactive Looker Studio dashboard.
+*End to End Data Pipeline for Channel Performance and Ad Spend Efficiency*
 
-**Live dashboard:** https://datastudio.google.com/reporting/15091e98-12eb-4b85-b382-84a640f25e73
+![Airflow](https://img.shields.io/badge/Apache%20Airflow-2.9.3-017CEE?style=flat&logo=apache-airflow&logoColor=white) ![dbt](https://img.shields.io/badge/dbt-1.8.0-FF694B?style=flat&logo=dbt&logoColor=white) ![BigQuery](https://img.shields.io/badge/Google%20BigQuery-Data%20Warehouse-4285F4?style=flat&logo=googlebigquery&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat&logo=docker&logoColor=white) ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?style=flat&logo=githubactions&logoColor=white) ![Looker Studio](https://img.shields.io/badge/Looker%20Studio-Dashboard-4285F4?style=flat&logo=looker&logoColor=white)
 
-## Why this project exists
+---
 
-Most portfolio data pipelines stop at "load some data and run a query." This one is built to mirror how a production marketing analytics stack is actually run: partitioned and clustered warehouse tables, a slowly changing dimension tracked with a snapshot, automated dbt testing on every pull request, orchestration with retries and failure alerting, and CI/CD authenticated without a single stored credential.
+## 📑 Table of Contents
 
-## The headline finding
+- [Overview](#-overview)
+- [Dashboard](#-dashboard)
+- [Architecture](#-architecture)
+- [Tech Stack](#-tech-stack)
+- [Dataset](#-dataset)
+- [Pipeline Details](#-pipeline-details)
+- [Key Findings](#-key-findings)
+- [Dashboard Features](#-dashboard-features)
+- [Key Results](#-key-results)
+- [Project Structure](#-project-structure)
+- [Continuous Integration](#-continuous-integration)
+- [Deployment Note](#-deployment-note)
 
-Across the full year of data, paid channels (Paid Search and Display) spent $925,637 combined and returned only $121,574 in revenue, a 0.13x return on ad spend. Meanwhile Referral traffic, which costs nothing, generated $644,802, more than the paid channels combined. The dashboard is built specifically to make that comparison impossible to miss.
+---
 
-## Architecture
+## 📘 Overview
+
+**CampaignPulse** is an end to end marketing analytics pipeline that ingests a full year of real ecommerce session data, models it through a **Bronze-Silver-Gold medallion architecture** using Airflow and dbt on BigQuery, and surfaces channel level revenue, spend, and ROAS intelligence through an interactive Looker Studio dashboard.
+
+**Key Highlights:**
+
+- 🔄 Orchestrated ELT pipeline with Apache Airflow, TaskGroups, retries, and failure alerting
+- 🏗️ Full Bronze-Silver-Gold medallion architecture on BigQuery
+- 📅 A full year of real session data, 902,755 sessions across 12 months
+- 🔐 Keyless CI/CD authentication using Workload Identity Federation, no service account keys anywhere
+- 📊 Interactive Looker Studio dashboard with date range and channel filters
+- 🧬 Slowly Changing Dimension Type 2 tracking via dbt snapshot
+
+---
+
+## 📸 Dashboard
+
+### Channel Performance Overview
+![CampaignPulse Dashboard](assets/dashboard.png)
+
+**Live dashboard:** https://datastudio.google.com/s/vwW-lkNpJic
+
+---
+
+## 🏗️ Architecture
 
 ```
 Google Merchandise Store sample dataset (BigQuery public data)
-        |
-   Airflow DAG (Docker, local)
-        |
-   Bronze  ->  ga_sessions_raw, synthetic_ad_spend  (partitioned by date)
-        |
-   dbt Silver -> stg_ga_sessions, stg_ad_spend, int_sessions_channel
-        |
-   dbt Gold  -> fct_channel_performance, fct_conversion_funnel
-        |
-   Looker Studio dashboard
+       │
+       ▼
+ Airflow DAG (Docker, local)
+       │
+       ▼
+Bronze Layer  ──►  ga_sessions_raw, synthetic_ad_spend (partitioned by date)
+       │
+       ▼
+dbt Silver Layer  ──►  stg_ga_sessions, stg_ad_spend, int_sessions_channel
+       │
+       ▼
+dbt Gold Layer  ──►  fct_channel_performance, fct_conversion_funnel
+       │
+       ▼
+Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 ```
 
-A campaign metadata dimension is tracked with a dbt snapshot using the timestamp strategy, demonstrating Slowly Changing Dimension Type 2 history, similar to the SCD work done on production Azure pipelines.
+---
 
-Every model in Silver and Gold is a full table rebuild rather than incremental. Since Bronze is fully truncated and reloaded on every run (the source dataset is a fixed historical window, not a live rolling feed), there is no meaningful "new rows since last run" slice to merge, so a plain rebuild is both simpler and more correct than incremental logic here.
+## 🛠️ Tech Stack
 
-## Why this dataset instead of live GA4
+| Layer | Technology |
+|---|---|
+| Orchestration | Apache Airflow 2.9.3 (Docker Compose) |
+| Transformation | dbt Core 1.8.0 + dbt-bigquery |
+| Data Warehouse | Google BigQuery |
+| CI/CD | GitHub Actions + Workload Identity Federation |
+| Visualization | Looker Studio |
+| Containerization | Docker |
 
-The project originally used the GA4 obfuscated sample ecommerce dataset, but that dataset only spans a 92 day historical window, which ruled out any real month over month or seasonal comparison. It was swapped for the Google Merchandise Store sample dataset (`bigquery-public-data.google_analytics_sample.ga_sessions_*`), a Universal Analytics export spanning a full year, 2016-08-01 through 2017-08-01. This dataset also includes a native `channelGrouping` field, a maintained marketing taxonomy (Organic Search, Direct, Referral, Paid Search, Social, Display, Affiliates), which is used directly instead of hand rolled source and medium pattern matching.
+---
 
-Ad spend is not part of either public dataset, so a synthetic daily spend table is generated for the genuinely paid channels (Paid Search, Display) and clearly labeled as synthetic in `scripts/synthetic_spend_generator.py`. Unpaid channels correctly receive zero spend through the join logic rather than fabricated zero value rows.
+## 📦 Dataset
 
-## Cost control
+- **Source:** [Google Merchandise Store sample dataset](https://console.cloud.google.com/marketplace/product/bigquery-public-datasets/google-analytics-sample) — `bigquery-public-data.google_analytics_sample.ga_sessions_*`, a Universal Analytics export in BigQuery public data
+- **Size:** 902,755 sessions across a full year, 2016-08-01 through 2017-08-01
+- **Channels:** Organic Search, Direct, Referral, Paid Search, Social, Display, Affiliates
+- **Key Fields:** Native `channelGrouping` taxonomy, nested `hits` array for ecommerce funnel events, `totals.transactionRevenue`
 
-Everything in this project is designed to stay inside free tiers.
+> Ad spend is not part of this public dataset. A synthetic daily spend table is generated for the genuinely paid channels (Paid Search, Display) via `scripts/synthetic_spend_generator.py`, clearly labeled as synthetic, so downstream CAC and ROAS metrics are calculable without fabricating anything about the real session data.
 
-- Airflow runs locally through Docker Compose. There is no Cloud Composer cost.
-- BigQuery free tier includes 10 GB storage and 1 TB of query processing per month, which comfortably covers this project's scale.
-- Every Bronze extraction query uses `maximum_bytes_billed` and every table is partitioned by date.
-- dbt Core is open source with no license cost.
-- Set a low dollar billing alert in the GCP console as a safety net.
+---
 
-## Repository structure
+## ⚙️ Pipeline Details
+
+### Bronze Layer
+- Airflow's `BigQueryInsertJobOperator` extracts the full year of session data directly from the public dataset
+- Written to a project owned Bronze dataset, partitioned by date, fully truncated and reloaded each run
+- 902,755 raw session rows landed, including nested ecommerce hit detail
+
+### Silver Layer
+- Flattens session level data, unnesting the `hits` array via correlated subqueries to derive funnel event counts
+- Deduplicates sessions using `qualify row_number()`, since a small number of sessions span midnight and appear twice across adjacent daily shards
+- Maps the native `channelGrouping` field directly, rather than hand rolled source and medium pattern matching
+
+### Gold Layer
+- Channel level daily sessions, revenue, spend, cost per acquisition, and return on ad spend
+- Full funnel conversion rates from item view through purchase, by channel
+- All Gold models are full table rebuilds rather than incremental, since Bronze is fully truncated and reloaded every run, there is no meaningful "new since last run" slice to merge
+
+---
+
+## 🔎 Key Findings
+
+Across the full year of data:
+
+| Finding | Value |
+|---|---|
+| Paid channel combined spend (Paid Search + Display) | $925,637 |
+| Paid channel combined revenue | $121,574 |
+| **Overall paid ROAS** | **0.13x** |
+| Referral revenue, at zero spend | $644,802 |
+| Peak monthly sessions (holiday season) | 113,907 (November) |
+
+Paid channels returned just 13 cents for every dollar spent, while Referral traffic, which costs nothing, generated more revenue than both paid channels combined.
+
+---
+
+## 📊 Dashboard Features
+
+**Filters**
+- Date range control spanning the full year
+- Channel filter with multi select
+
+**KPI Cards**
+- Total revenue, total sessions, total paid spend, overall paid ROAS
+
+**Charts**
+- Monthly sessions trend, with a clear holiday season spike
+- Revenue per session by channel, horizontal bar
+- Paid spend versus revenue, trended monthly
+- Session share by channel, donut chart
+
+---
+
+## 📈 Key Results
+
+| Metric | Value |
+|---|---|
+| Total Sessions | 900,200 |
+| Total Revenue | $1,528,871.78 |
+| Total Paid Spend | $924,674.46 |
+| Overall Paid ROAS | 13% |
+| Top Revenue per Session Channel | Display ($12.59) |
+| Top Volume Channel | Organic Search (42.2% of sessions) |
+
+---
+
+## 📂 Project Structure
 
 ```
 campaignpulse/
-  dags/                     Airflow DAG and templated SQL for Bronze extraction
-  dbt/
-    models/staging/         Flattened, typed session and spend models
-    models/intermediate/    Channel normalization using native channelGrouping
-    models/marts/           Gold layer facts: channel performance, funnel
-    snapshots/               SCD Type 2 campaign metadata
-    seeds/                   Small reference data
-  scripts/                  Synthetic ad spend generator
-  .github/workflows/        CI pipeline running dbt build and test on every PR
-  docker-compose.yaml       Local Airflow stack
-  Dockerfile.airflow        Custom image with dbt and BigQuery adapter installed
+├── dags/
+│   ├── campaignpulse_elt_dag.py
+│   └── sql/load_ga_sessions_bronze.sql
+├── dbt/
+│   ├── models/staging/
+│   ├── models/intermediate/
+│   ├── models/marts/
+│   ├── snapshots/
+│   └── seeds/
+├── scripts/
+│   └── synthetic_spend_generator.py
+├── assets/
+│   └── dashboard.png
+├── .github/workflows/dbt_ci.yml
+├── docker-compose.yaml
+└── Dockerfile.airflow
 ```
 
-## Running locally
+---
 
-1. Create a GCP project. Authenticate locally with `gcloud auth application-default login` (this project uses Application Default Credentials, not a downloaded service account key, since key creation is blocked by default on many GCP organizations now).
-2. Copy `.env.example` to `.env` and fill in your project id.
-3. Create the Bronze, Silver, Gold, and CI datasets in BigQuery.
-4. Start the stack:
+## 🔐 Continuous Integration
 
-```
-docker compose up airflow-init
-docker compose up
-```
+Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, and `dbt test` against a dedicated CI dataset in GitHub Actions. Authentication uses **Workload Identity Federation**, not a downloaded service account key, GitHub Actions proves its identity directly to Google Cloud through a short lived token exchange scoped to this specific repository, with no long lived credential ever stored as a secret.
 
-5. Open `localhost:8080`, log in with the admin user created in `airflow-init`, and trigger the `campaignpulse_elt` DAG.
-6. Once a run completes, dbt docs are generated at `dbt/target/index.html` and can be hosted on GitHub Pages.
+---
 
-## Continuous integration
+## 📌 Deployment Note
 
-Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, and `dbt test` against a dedicated CI dataset in GitHub Actions. Authentication uses Workload Identity Federation, not a downloaded service account key, GitHub Actions proves its identity directly to Google Cloud through a short lived token exchange scoped to this specific repository, with no long lived credential ever stored as a secret. This is the current recommended pattern for CI to cloud authentication.
+CampaignPulse is designed as a fully self contained, locally orchestrated pipeline. Airflow, dbt, and the BigQuery connection all run within Docker on the local machine, authenticated via Application Default Credentials rather than a downloaded key file.
 
-## Metrics produced
+To run the project, clone the repository, authenticate with `gcloud auth application-default login`, and start the stack with `docker compose up airflow-init && docker compose up`. Once running, Airflow is accessible at `localhost:8080`.
 
-- Sessions, users, and revenue by channel and day
-- Cost per acquisition and return on ad spend by channel and day
-- Full funnel conversion rates from item view through purchase, by channel
-- Slowly changing campaign ownership and budget tier history
+---
 
-## Dashboard
-
-The Looker Studio dashboard includes a date range filter, a channel filter, four KPI scorecards (total revenue, total sessions, total paid spend, overall paid ROAS), and four charts: monthly session trend, revenue per session by channel, paid spend versus revenue trended monthly, and session share by channel.
-
-View it live: https://datastudio.google.com/reporting/15091e98-12eb-4b85-b382-84a640f25e73
-
-## Tech stack
-
-Airflow, Docker, dbt Core, Google BigQuery, GitHub Actions, Workload Identity Federation, Looker Studio, Python.
+*Built with Airflow · dbt Core · Google BigQuery · Docker · GitHub Actions · Workload Identity Federation · Looker Studio*
