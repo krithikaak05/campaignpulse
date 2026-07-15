@@ -20,6 +20,7 @@
 - [Key Results](#-key-results)
 - [Project Structure](#-project-structure)
 - [Continuous Integration](#-continuous-integration)
+- [Future Scope](#-future-scope)
 - [Deployment Note](#-deployment-note)
 
 ---
@@ -56,7 +57,7 @@ This project demonstrates that exact workflow end to end: real session data flow
 ## 📸 Dashboard
 
 ### Channel Performance Overview
-![CampaignPulse Dashboard](dashboard.png)
+![CampaignPulse Dashboard](assets/dashboard.png)
 
 **Live dashboard:** https://datastudio.google.com/s/vwW-lkNpJic
 
@@ -105,7 +106,7 @@ Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 - **Channels:** Organic Search, Direct, Referral, Paid Search, Social, Display, Affiliates
 - **Key Fields:** Native `channelGrouping` taxonomy, nested `hits` array for ecommerce funnel events, `totals.transactionRevenue`
 
-> Ad spend is not part of this public dataset. A synthetic daily spend table is generated for the genuinely paid channels (Paid Search, Display) via `scripts/synthetic_spend_generator.py`, clearly labeled as synthetic, so downstream CAC and ROAS metrics are calculable without fabricating anything about the real session data.
+> Ad spend is not part of this public dataset. A synthetic daily spend table is generated for the genuinely paid channels (Paid Search, Display) via `scripts/synthetic_spend_generator.py`, clearly labeled as synthetic, and used only to power the CAC and ROAS metrics downstream.
 
 ---
 
@@ -200,6 +201,14 @@ campaignpulse/
 ## 🔐 Continuous Integration
 
 Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, and `dbt test` against a dedicated CI dataset in GitHub Actions. Authentication uses **Workload Identity Federation**, not a downloaded service account key, GitHub Actions proves its identity directly to Google Cloud through a short lived token exchange scoped to this specific repository, with no long lived credential ever stored as a secret.
+
+---
+
+## 🔭 Future Scope
+
+- Add a conversion funnel visualization (view → cart → checkout → purchase) to the dashboard using the existing `fct_conversion_funnel` table, which is built and tested in the pipeline but not yet surfaced visually
+- Extend the synthetic ad spend model with campaign level granularity, not just channel level
+- Add anomaly detection on daily spend versus revenue to auto flag underperforming days
 
 ---
 
