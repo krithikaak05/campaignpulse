@@ -2,7 +2,7 @@
 
 An end to end marketing analytics pipeline built on Airflow, dbt, and Google BigQuery. It ingests a full year of real session data from the Google Merchandise Store public sample dataset, models it through a Bronze, Silver, Gold architecture, and produces channel performance, funnel, and cost per acquisition metrics visualized in an interactive Looker Studio dashboard.
 
-**Live dashboard:** https://datastudio.google.com/s/vwW-lkNpJic
+**Live dashboard:** https://datastudio.google.com/reporting/15091e98-12eb-4b85-b382-84a640f25e73
 
 ## Why this project exists
 
