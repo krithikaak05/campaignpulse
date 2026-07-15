@@ -8,6 +8,7 @@
 
 ## 📑 Table of Contents
 
+- [Business Problem](#-business-problem)
 - [Overview](#-overview)
 - [Dashboard](#-dashboard)
 - [Architecture](#-architecture)
@@ -23,6 +24,20 @@
 
 ---
 
+## 🎯 Business Problem
+
+Marketing teams routinely split budget across paid channels (search ads, display) and organic channels (referral, direct, social) without a system that ties spend directly to downstream revenue at the channel level. Without that visibility, an underperforming paid channel can keep burning budget for months before anyone notices, since spend and revenue usually live in separate systems that nobody joins together on a regular cadence.
+
+**Use case:** A marketing analytics or growth team uses this pipeline to answer three questions on an ongoing basis:
+
+1. Which channels are actually driving revenue, and which are just driving traffic?
+2. Is our paid ad spend profitable, channel by channel, month by month?
+3. Where in the conversion funnel are we losing the most customers, and does that differ by channel?
+
+This project demonstrates that exact workflow end to end: real session data flows in daily, gets modeled into channel level facts, and surfaces directly in a dashboard a marketing lead could use to make a real budget reallocation decision, in this case, catching that paid channels return only 13 cents per dollar spent while a free channel outperforms them entirely.
+
+---
+
 ## 📘 Overview
 
 **CampaignPulse** is an end to end marketing analytics pipeline that ingests a full year of real ecommerce session data, models it through a **Bronze-Silver-Gold medallion architecture** using Airflow and dbt on BigQuery, and surfaces channel level revenue, spend, and ROAS intelligence through an interactive Looker Studio dashboard.
@@ -31,7 +46,7 @@
 
 - 🔄 Orchestrated ELT pipeline with Apache Airflow, TaskGroups, retries, and failure alerting
 - 🏗️ Full Bronze-Silver-Gold medallion architecture on BigQuery
-- 📅 A full year of real session data, 902,755 sessions across 12 months
+- 📅 A full year of real session data, 900,200 sessions across 12 months
 - 🔐 Keyless CI/CD authentication using Workload Identity Federation, no service account keys anywhere
 - 📊 Interactive Looker Studio dashboard with date range and channel filters
 - 🧬 Slowly Changing Dimension Type 2 tracking via dbt snapshot
@@ -85,8 +100,8 @@ Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 
 ## 📦 Dataset
 
-- **Source:** [Google Merchandise Store sample dataset](https://console.cloud.google.com/marketplace/product/bigquery-public-datasets/google-analytics-sample) — `bigquery-public-data.google_analytics_sample.ga_sessions_*`, a Universal Analytics export in BigQuery public data
-- **Size:** 902,755 sessions across a full year, 2016-08-01 through 2017-08-01
+- **Source:** [Google Analytics Sample dataset](https://www.kaggle.com/datasets/bigquery/google-analytics-sample) — `bigquery-public-data.google_analytics_sample.ga_sessions_*`, a Universal Analytics export in BigQuery public data
+- **Size:** 900,200 sessions across a full year, 2016-08-01 through 2017-08-01
 - **Channels:** Organic Search, Direct, Referral, Paid Search, Social, Display, Affiliates
 - **Key Fields:** Native `channelGrouping` taxonomy, nested `hits` array for ecommerce funnel events, `totals.transactionRevenue`
 
@@ -99,7 +114,7 @@ Looker Studio Dashboard  ──►  KPI cards, trend charts, channel breakdown
 ### Bronze Layer
 - Airflow's `BigQueryInsertJobOperator` extracts the full year of session data directly from the public dataset
 - Written to a project owned Bronze dataset, partitioned by date, fully truncated and reloaded each run
-- 902,755 raw session rows landed, including nested ecommerce hit detail
+- 900,200 raw session rows landed, including nested ecommerce hit detail
 
 ### Silver Layer
 - Flattens session level data, unnesting the `hits` array via correlated subqueries to derive funnel event counts
@@ -119,13 +134,12 @@ Across the full year of data:
 
 | Finding | Value |
 |---|---|
-| Paid channel combined spend (Paid Search + Display) | $925,637 |
-| Paid channel combined revenue | $121,574 |
-| **Overall paid ROAS** | **0.13x** |
-| Referral revenue, at zero spend | $644,802 |
+| Total paid spend (Paid Search + Display) | $924,674.46 |
+| Overall paid ROAS | 13% |
+| Referral revenue, at zero spend (approximate) | ~$644,800 |
 | Peak monthly sessions (holiday season) | 113,907 (November) |
 
-Paid channels returned just 13 cents for every dollar spent, while Referral traffic, which costs nothing, generated more revenue than both paid channels combined.
+Paid channels returned just 13 cents for every dollar spent, while Referral traffic, which costs nothing, generated revenue on a similar scale to both paid channels combined.
 
 ---
 
