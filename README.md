@@ -58,7 +58,7 @@ This project demonstrates that exact workflow end to end: real session data flow
 ## 📸 Dashboard
 
 ### Channel Performance Overview
-![CampaignPulse Dashboard](assets/dashboard.png)
+![CampaignPulse Dashboard](dashboard.png)
 
 **Live dashboard:** https://datastudio.google.com/s/vwW-lkNpJic
 
