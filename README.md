@@ -178,7 +178,7 @@ campaignpulse/
 
 ## 🔐 Continuous Integration
 
-Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, and `dbt test` against a dedicated CI dataset in GitHub Actions. Authentication uses **Workload Identity Federation**, not a downloaded service account key, GitHub Actions proves its identity directly to Google Cloud through a short lived token exchange scoped to this specific repository, with no long lived credential ever stored as a secret.
+Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, and `dbt test` against a dedicated CI dataset in GitHub Actions. Authentication uses **Workload Identity Federation**, GitHub Actions proves its identity directly to Google Cloud through a short lived token exchange scoped to this specific repository, with no credential stored as a secret.
 
 ---
 
@@ -192,7 +192,7 @@ Every pull request that touches the `dbt/` folder runs `dbt seed`, `dbt run`, an
 
 ## 📌 Deployment Note
 
-CampaignPulse is designed as a fully self contained, locally orchestrated pipeline. Airflow, dbt, and the BigQuery connection all run within Docker on the local machine, authenticated via Application Default Credentials rather than a downloaded key file.
+CampaignPulse is designed as a fully self contained, locally orchestrated pipeline. Airflow, dbt, and the BigQuery connection all run within Docker on the local machine, authenticated via Application Default Credentials.
 
 To run the project, clone the repository, authenticate with `gcloud auth application-default login`, and start the stack with `docker compose up airflow-init && docker compose up`. Once running, Airflow is accessible at `localhost:8080`.
 
