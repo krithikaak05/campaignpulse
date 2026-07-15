@@ -27,6 +27,23 @@ jobs:
           workload_identity_provider: projects/935110387855/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider
           service_account: campaignpulse-runner@project-70a69ac8-3bfe-400d-9c8.iam.gserviceaccount.com
 
+      - name: Write CI profiles.yml
+        run: |
+          cat > dbt/profiles.yml << 'EOF'
+          campaignpulse:
+            target: ci
+            outputs:
+              ci:
+                type: bigquery
+                method: oauth
+                project: "{{ env_var('GCP_PROJECT_ID') }}"
+                dataset: campaignpulse_ci
+                location: US
+                threads: 4
+                priority: interactive
+                maximum_bytes_billed: 1000000000
+          EOF
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
