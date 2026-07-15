@@ -32,9 +32,8 @@ Marketing teams routinely split budget across paid channels (search ads, display
 **Use case:** A marketing analytics or growth team uses this pipeline to answer three questions on an ongoing basis:
 
 1. Which channels are actually driving revenue, and which are just driving traffic?
-2. Is our paid ad spend profitable, channel by channel, month by month?
-
-The current dashboard fully answers question 1 and partially answers question 2, it shows the overall paid return on ad spend and a monthly spend versus revenue trend, though it does not yet break that trend out separately for each individual paid channel over time.
+2. Is our paid ad spend profitable? How?
+3. How does session volume change throughout the year, and are there seasonal patterns worth planning around?
 
 This project demonstrates that exact workflow end to end: real session data flows in daily, gets modeled into channel level facts, and surfaces directly in a dashboard a marketing lead could use to make a real budget reallocation decision, in this case, catching that paid channels return only 13 cents per dollar spent while a free channel outperforms them entirely.
 
