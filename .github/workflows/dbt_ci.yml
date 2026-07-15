@@ -6,17 +6,26 @@ on:
     paths:
       - "dbt/**"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   dbt_build_and_test:
     runs-on: ubuntu-latest
 
     env:
       GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp_sa.json
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/935110387855/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider
+          service_account: campaignpulse-runner@project-70a69ac8-3bfe-400d-9c8.iam.gserviceaccount.com
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,9 +35,6 @@ jobs:
       - name: Install dbt
         run: |
           pip install dbt-core==1.8.0 dbt-bigquery==1.8.0
-
-      - name: Write service account key
-        run: echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' > /tmp/gcp_sa.json
 
       - name: dbt deps
         working-directory: dbt
